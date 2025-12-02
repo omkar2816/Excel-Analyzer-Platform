@@ -29,6 +29,21 @@ import NotFound from './pages/NotFound';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import ResetPassword from './pages/Auth/ResetPassword';
 
+// Legal Pages
+import Privacy from './pages/Legal/Privacy';
+import Terms from './pages/Legal/Terms';
+import Cookies from './pages/Legal/Cookies';
+
+// Support Pages
+import HelpCenter from './pages/Support/HelpCenter';
+import FAQ from './pages/Support/FAQ';
+import Status from './pages/Support/Status';
+import Documentation from './pages/Support/Documentation';
+import SDKTools from './pages/Support/SDKTools';
+
+// Floating Components
+import FloatingAIAssistant from './components/FloatingAIAssistant';
+
 // Initialize theme on app load
 const initializeTheme = () => {
   const savedTheme = localStorage.getItem('theme') || 'light';
@@ -63,6 +78,27 @@ function App() {
                 <Routes>
                 {/* Landing Page - Always accessible */}
                 <Route path="/" element={<Landing />} />
+                
+                {/* Legal Pages - Always accessible */}
+                <Route path="/legal/privacy" element={<Privacy />} />
+                <Route path="/legal/terms" element={<Terms />} />
+                <Route path="/legal/cookies" element={<Cookies />} />
+                
+                {/* Support Pages - Always accessible */}
+                <Route path="/support/help-center" element={<HelpCenter />} />
+                <Route path="/support/faq" element={<FAQ />} />
+                <Route path="/support/status" element={<Status />} />
+                <Route path="/support/documentation" element={<Documentation />} />
+                <Route path="/support/sdk-tools" element={<SDKTools />} />
+                
+                {/* Legacy support for old routes */}
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/cookies" element={<Cookies />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/status" element={<Status />} />
+                <Route path="/docs" element={<Documentation />} />
                 
                 {/* Protected Routes */}
                 <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
@@ -126,6 +162,9 @@ function App() {
               
               {/* Scroll to Top Button */}
               <ScrollToTop />
+              
+              {/* Floating AI Assistant */}
+              <FloatingAIAssistant />
             </div>
           </Router>
         </LenisProvider>

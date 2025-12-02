@@ -14,10 +14,14 @@ import analyticsEnhancedRoutes from './routes/analyticsEnhanced.js';
 import historyRoutes from './routes/history.js';
 import notificationRoutes from './routes/notifications.js';
 import tabNotificationRoutes from './routes/tabNotifications.js';
+import ratingRoutes from './routes/ratings.js';
 import { getTransporter } from './utils/mailer.js';
 
 // Load environment variables
 dotenv.config();
+
+// Track server startup time for real uptime calculation
+global.serverStartTime = Date.now();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -57,6 +61,7 @@ app.use('/api/analytics-enhanced', analyticsEnhancedRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/tab-notifications', tabNotificationRoutes);
+app.use('/api/ratings', ratingRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -79,6 +84,8 @@ app.use('*', (req, res) => {
 
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`Server running on http://127.0.0.1:${PORT}`);
+  console.log(`Server started at: ${new Date(global.serverStartTime).toISOString()}`);
+  console.log(`Real-time uptime tracking enabled`);
   // Warm up SMTP transporter on boot so failures are visible early
   getTransporter().catch(() => {});
 });

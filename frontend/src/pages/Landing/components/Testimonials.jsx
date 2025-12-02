@@ -1,74 +1,113 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, Plus, ThumbsUp, MessageCircle } from 'lucide-react';
+import RatingModal from '../../../components/RatingModal';
+import { useSelector } from 'react-redux';
 
 const Testimonials = () => {
   const [platformStats, setPlatformStats] = useState(null);
+  const [testimonials, setTestimonials] = useState([]);
+  const [ratingStats, setRatingStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [userRating, setUserRating] = useState(null);
+  const { user } = useSelector((state) => state.auth);
 
-  // Fetch platform statistics
+  // Fetch platform statistics and testimonials
   useEffect(() => {
-    const fetchPlatformStats = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/analytics/platform-stats');
-        const data = await response.json();
-        setPlatformStats(data);
+        // Fetch platform stats
+        const statsResponse = await fetch('/api/analytics/platform-stats');
+        const statsData = await statsResponse.json();
+        setPlatformStats(statsData);
+
+        // Fetch real testimonials
+        const testimonialsResponse = await fetch('/api/ratings/public?limit=6');
+        const testimonialsData = await testimonialsResponse.json();
+        setTestimonials(testimonialsData.success ? testimonialsData.data : []);
+
+        // Fetch rating statistics
+        const ratingStatsResponse = await fetch('/api/ratings/stats');
+        const ratingStatsData = await ratingStatsResponse.json();
+        setRatingStats(ratingStatsData.success ? ratingStatsData.data : null);
+
+        // Fetch user's rating if authenticated
+        if (user) {
+          try {
+            const userRatingResponse = await fetch('/api/ratings/my-rating', {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            });
+            const userRatingData = await userRatingResponse.json();
+            setUserRating(userRatingData.success ? userRatingData.data : null);
+          } catch (error) {
+            console.error('Error fetching user rating:', error);
+          }
+        }
       } catch (error) {
-        console.error('Error fetching platform stats:', error);
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchPlatformStats();
-  }, []);
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Data Analyst",
-      company: "TechCorp Solutions",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=100&h=100&fit=crop&crop=face",
-      content: "This platform has revolutionized how we handle data analysis. The 3D visualizations are stunning and the processing speed is incredible. It's saved us hours of manual work.",
-      rating: 5
-    },
-    {
-      name: "Michael Rodriguez",
-      role: "Business Intelligence Manager",
-      company: "Global Dynamics",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-      content: "The security features and user management capabilities are top-notch. We can confidently handle sensitive financial data with complete peace of mind.",
-      rating: 5
-    },
-    {
-      name: "Emily Johnson",
-      role: "Financial Analyst",
-      company: "InvestTech",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-      content: "The automated insights and predictive analytics have helped us make better investment decisions. The interface is intuitive and the charts are beautiful.",
-      rating: 5
-    },
-    {
-      name: "David Park",
-      role: "Operations Director",
-      company: "ManufacturePlus",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
-      content: "We process thousands of production reports monthly. This platform makes it effortless to identify trends and optimize our operations. Highly recommended!",
-      rating: 5
-    },
-    {
-      name: "Lisa Zhang",
-      role: "Research Scientist",
-      company: "BioTech Labs",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
-      content: "The correlation analysis and statistical tools are exactly what our research team needed. The export functionality makes sharing results with colleagues seamless.",
-      rating: 5
-    },
-    {
-      name: "James Wilson",
-      role: "Marketing Analytics Lead",
-      company: "Digital Agency Pro",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-      content: "The real-time processing and collaborative features have transformed our reporting workflow. Our clients love the interactive dashboards we can now provide.",
-      rating: 5
+    fetchData();
+  }, [user]);
+
+  // Handle rating submission
+  const handleRatingSubmit = async (ratingData) => {
+    try {
+      const endpoint = userRating ? '/api/ratings/update' : '/api/ratings/submit';
+      const method = userRating ? 'PUT' : 'POST';
+      
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(ratingData)
+      });
+
+      if (response.ok) {
+        // Refresh data after successful submission
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit rating');
+      }
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      throw error;
     }
-  ];
+  };
+
+  // Mark rating as helpful
+  const handleMarkHelpful = async (ratingId) => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`/api/ratings/${ratingId}/helpful`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        // Update the testimonial's helpful count locally
+        setTestimonials(prev => prev.map(testimonial => 
+          testimonial.id === ratingId 
+            ? { ...testimonial, helpfulVotes: (testimonial.helpfulVotes || 0) + 1 }
+            : testimonial
+        ));
+      }
+    } catch (error) {
+      console.error('Error marking as helpful:', error);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -122,11 +161,22 @@ const Testimonials = () => {
           >
             <div className="flex space-x-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
+                <Star 
+                  key={i} 
+                  className={`w-6 h-6 transition-colors ${
+                    i < Math.round(ratingStats?.averageRating || 0) 
+                      ? 'text-yellow-400 fill-current' 
+                      : 'text-gray-300 dark:text-gray-600'
+                  }`} 
+                />
               ))}
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white ml-3">4.9</span>
-            <span className="text-gray-600 dark:text-gray-400">out of 5 (2,847 reviews)</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white ml-3">
+              {ratingStats?.averageRating?.toFixed(1) || '0.0'}
+            </span>
+            <span className="text-gray-600 dark:text-gray-400">
+              out of 5 ({ratingStats?.totalRatings || '0'} reviews)
+            </span>
           </motion.div>
         </motion.div>
 
@@ -138,9 +188,9 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {testimonials.map((testimonial, index) => (
+          {testimonials.length > 0 ? testimonials.map((testimonial, index) => (
             <motion.div
-              key={index}
+              key={testimonial._id || testimonial.id || index}
               variants={itemVariants}
               whileHover={{ y: -5, scale: 1.02 }}
               className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 relative"
@@ -149,10 +199,22 @@ const Testimonials = () => {
               <Quote className="absolute top-4 right-4 w-6 h-6 text-emerald-200 dark:text-emerald-800" />
               
               {/* Stars */}
-              <div className="flex space-x-1 mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                ))}
+              <div className="flex items-center space-x-1 mb-4">
+                <div className="flex space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`w-4 h-4 transition-colors ${
+                        i < (testimonial.rating || 0) 
+                          ? 'text-yellow-400 fill-current' 
+                          : 'text-gray-300 dark:text-gray-600'
+                      }`} 
+                    />
+                  ))}
+                </div>
+                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                  {testimonial.rating || 0}/5
+                </span>
               </div>
               
               {/* Content */}
@@ -161,26 +223,61 @@ const Testimonials = () => {
               </p>
               
               {/* Author */}
-              <div className="flex items-center">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  className="w-12 h-12 rounded-full object-cover mr-4"
-                />
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">
-                    {testimonial.name}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {testimonial.role}
-                  </p>
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                    {testimonial.company}
-                  </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold mr-4">
+                    {testimonial.userName ? testimonial.userName.charAt(0).toUpperCase() : testimonial.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                      {testimonial.userName || testimonial.name || 'Anonymous User'}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {testimonial.role || 'Platform User'}
+                    </p>
+                    {testimonial.company && (
+                      <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                        {testimonial.company}
+                      </p>
+                    )}
+                  </div>
                 </div>
+                
+                {/* Helpful Button */}
+                {user && (
+                  <button
+                    onClick={() => handleMarkHelpful(testimonial._id)}
+                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-emerald-600 transition-colors"
+                  >
+                    <ThumbsUp className="w-4 h-4" />
+                    <span>{testimonial.helpfulVotes || 0}</span>
+                  </button>
+                )}
               </div>
             </motion.div>
-          ))}
+          )) : (
+            <motion.div
+              variants={itemVariants}
+              className="col-span-full text-center py-12"
+            >
+              <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                No reviews yet
+              </h3>
+              <p className="text-gray-500 dark:text-gray-500 mb-6">
+                Be the first to share your experience with our platform
+              </p>
+              {user && (
+                <button
+                  onClick={() => setShowRatingModal(true)}
+                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300"
+                >
+                  <Plus className="w-5 h-5" />
+                  Write First Review
+                </button>
+              )}
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Bottom CTA */}
@@ -200,6 +297,19 @@ const Testimonials = () => {
               Start your free trial today and discover why data professionals choose our platform.
             </p>
             
+            {/* User Rating CTA */}
+            {user && (
+              <div className="mb-6">
+                <button
+                  onClick={() => setShowRatingModal(true)}
+                  className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300"
+                >
+                  <Star className="w-5 h-5" />
+                  {userRating ? 'Update Your Rating' : 'Share Your Experience'}
+                </button>
+              </div>
+            )}
+
             {/* Trust Indicators */}
             <div className="flex flex-wrap justify-center items-center gap-8 mt-8">
               <div className="text-center">
@@ -224,6 +334,14 @@ const Testimonials = () => {
           </div>
         </motion.div>
       </div>
+      
+      {/* Rating Modal */}
+      <RatingModal
+        isOpen={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        onSubmit={handleRatingSubmit}
+        existingRating={userRating}
+      />
     </section>
   );
 };

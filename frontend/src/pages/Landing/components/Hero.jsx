@@ -155,17 +155,19 @@ const Hero = ({ onGetStarted, onSignIn }) => {
             >
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {platformStats ? `${platformStats.filesProcessed?.toLocaleString()}+` : '15K+'}
+                  {platformStats ? `${platformStats.filesProcessed?.toLocaleString()}+` : '0+'}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Files Analyzed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">50+</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {platformStats ? `${platformStats.chartTypesGenerated}+` : '0+'}
+                </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Chart Types</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {platformStats ? `${platformStats.uptime}%` : '99.9%'}
+                  {platformStats ? `${platformStats.uptime}%` : '0%'}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">Uptime</div>
               </div>
@@ -393,7 +395,7 @@ const Hero = ({ onGetStarted, onSignIn }) => {
                     transition={{ delay: 1.8 }}
                   >
                     <div className="text-2xl font-bold text-emerald-600">
-                      {platformStats ? `${Math.floor(platformStats.totalAnalyses / 1000).toFixed(1)}K` : '1.2K'}
+                      {platformStats ? `${(platformStats.dataPointsProcessed / 1000).toFixed(0)}K` : '0K'}
                     </div>
                     <div className="text-xs text-gray-500">Data Points</div>
                   </motion.div>
@@ -404,7 +406,7 @@ const Hero = ({ onGetStarted, onSignIn }) => {
                     transition={{ delay: 2.0 }}
                   >
                     <div className="text-2xl font-bold text-teal-600">
-                      {platformStats ? `${platformStats.uptime}%` : '98.7%'}
+                      {platformStats ? `${platformStats.accuracy}%` : '0%'}
                     </div>
                     <div className="text-xs text-gray-500">Accuracy</div>
                   </motion.div>
@@ -415,7 +417,7 @@ const Hero = ({ onGetStarted, onSignIn }) => {
                     transition={{ delay: 2.2 }}
                   >
                     <div className="text-2xl font-bold text-green-600">
-                      {platformStats ? `${platformStats.avgProcessingTime}s` : '2.1s'}
+                      {platformStats ? `${platformStats.avgProcessingTime}s` : '0s'}
                     </div>
                     <div className="text-xs text-gray-500">Process Time</div>
                   </motion.div>

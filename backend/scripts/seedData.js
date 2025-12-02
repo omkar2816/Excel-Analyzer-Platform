@@ -204,7 +204,11 @@ const seedData = async () => {
         description: randomDescription,
         fileId: Math.random() > 0.5 ? randomFile._id : undefined,
         fileName: Math.random() > 0.5 ? randomFile.originalName : undefined,
-        metadata: { source: 'platform_activity', browser: 'Chrome/118.0' },
+        metadata: { 
+          source: 'seeded_data',  // Mark as fake/test data
+          isRealUserActivity: false, 
+          browser: 'Chrome/118.0'
+        },
         ipAddress: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         performedAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000) // Random date in last 90 days
