@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Star, Quote, Plus, ThumbsUp, MessageCircle } from 'lucide-react';
 import RatingModal from '../../../components/RatingModal';
 import { useSelector } from 'react-redux';
+import axios from '../../../config/axios';
 
 const Testimonials = () => {
   const [platformStats, setPlatformStats] = useState(null);
@@ -18,30 +19,25 @@ const Testimonials = () => {
     const fetchData = async () => {
       try {
         // Fetch platform stats
-        const statsResponse = await fetch('/api/analytics/platform-stats');
-        const statsData = await statsResponse.json();
-        setPlatformStats(statsData);
+        const statsResponse = await axios.get('/api/analytics/platform-stats');
+        setPlatformStats(statsResponse.data);
 
-        // Fetch real testimonials
-        const testimonialsResponse = await fetch('/api/ratings/public?limit=6');
-        const testimonialsData = await testimonialsResponse.json();
-        setTestimonials(testimonialsData.success ? testimonialsData.data : []);
-
-        // Fetch rating statistics
-        const ratingStatsResponse = await fetch('/api/ratings/stats');
-        const ratingStatsData = await ratingStatsResponse.json();
-        setRatingStats(ratingStatsData.success ? ratingStatsData.data : null);
+        // Fetch real testimonials from popup stats
+        const testimonialsResponse = await axios.get('/api/review-popup/stats');
+        const testimonialsData = testimonialsResponse.data;
+        
+        setTestimonials(testimonialsData.featuredReviews || []);
+        setRatingStats({
+          avgRating: testimonialsData.avgRating || 0,
+          totalRatings: testimonialsData.totalRatings || 0,
+          distribution: testimonialsData.distribution || {}
+        });
 
         // Fetch user's rating if authenticated
         if (user) {
           try {
-            const userRatingResponse = await fetch('/api/ratings/my-rating', {
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              }
-            });
-            const userRatingData = await userRatingResponse.json();
-            setUserRating(userRatingData.success ? userRatingData.data : null);
+            const userRatingResponse = await axios.get('/api/ratings/my-rating');
+            setUserRating(userRatingResponse.data.success ? userRatingResponse.data.data : null);
           } catch (error) {
             console.error('Error fetching user rating:', error);
           }

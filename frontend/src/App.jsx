@@ -14,6 +14,7 @@ import LenisProvider from './components/LenisProvider';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollProgress from './components/ScrollProgress';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import ReviewPopup from './components/ReviewPopup';
 import Landing from './pages/Landing/Landing';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
@@ -44,6 +45,9 @@ import SDKTools from './pages/Support/SDKTools';
 // Floating Components
 import FloatingAIAssistant from './components/FloatingAIAssistant';
 
+// Hooks
+import useReviewPopup from './hooks/useReviewPopup';
+
 // Initialize theme on app load
 const initializeTheme = () => {
   const savedTheme = localStorage.getItem('theme') || 'light';
@@ -56,6 +60,13 @@ const initializeTheme = () => {
 };
 
 function App() {
+  const { 
+    isPopupVisible, 
+    hidePopup, 
+    handleSubmit, 
+    handlePreference 
+  } = useReviewPopup();
+
   useEffect(() => {
     initializeTheme();
     
@@ -165,6 +176,14 @@ function App() {
               
               {/* Floating AI Assistant */}
               <FloatingAIAssistant />
+              
+              {/* Review Popup */}
+              <ReviewPopup
+                isVisible={isPopupVisible}
+                onClose={hidePopup}
+                onSubmit={handleSubmit}
+                onPreference={handlePreference}
+              />
             </div>
           </Router>
         </LenisProvider>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { activityTracker } from '../../utils/reviewTracking';
+import useReviewPopup from '../../hooks/useReviewPopup';
 import { 
   BarChart3, 
   Activity, 
@@ -33,6 +35,7 @@ const Dashboard = () => {
   const { user, isAdmin, isSuperAdmin } = useSelector((state) => state.auth);
   const { theme } = useSelector((state) => state.ui);
   const { recentFiles, chartHistory, recentActivities } = useSelector((state) => state.analytics);
+  const { trackPageView } = useReviewPopup();
 
   // Ref for the scrollable recent activity container
   const recentActivityRef = useRef(null);
@@ -192,6 +195,9 @@ const Dashboard = () => {
   // Fetch dashboard data when component mounts
   useEffect(() => {
     if (user) {
+      // Track page view for review popup system
+      trackPageView();
+      
       // Fetch recent files
       dispatch(fetchUploadedFiles()).catch(console.error);
       
@@ -206,7 +212,7 @@ const Dashboard = () => {
       // Fetch recent activities
       dispatch(fetchRecentActivities({ limit: 10 })).catch(console.error);
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, trackPageView]);
 
   // Add mouse wheel event handling for recent activity section
   useEffect(() => {

@@ -5,6 +5,8 @@ import { uploadExcelFile, fetchUploadedFiles, deleteUploadedFile, analyzeData } 
 import AdvancedChartDashboard from '../../components/Charts/AdvancedChartDashboard';
 import VirtualTable from '../../components/UI/VirtualTable';
 import PerformanceMonitor from '../../components/UI/PerformanceMonitor';
+import { activityTracker } from '../../utils/reviewTracking';
+import useReviewPopup from '../../hooks/useReviewPopup';
 import axios from '../../config/axios';
 import { 
   Upload, 
@@ -37,10 +39,13 @@ const Analytics = () => {
   const [performanceData, setPerformanceData] = useState(null);
   const [viewingChart, setViewingChart] = useState(null);
   const tableRef = useRef(null);
+  const { trackFileUpload, trackChartGenerated, trackPageView } = useReviewPopup();
 
   useEffect(() => {
     dispatch(fetchUploadedFiles());
-  }, [dispatch]);
+    // Track page view for review popup system
+    trackPageView();
+  }, [dispatch, trackPageView]);
 
   // Handle URL parameters for chart viewing
   useEffect(() => {
@@ -152,6 +157,9 @@ const Analytics = () => {
       
       const result = await dispatch(uploadExcelFile(file)).unwrap();
       toast.dismiss();
+      
+      // Track file upload activity for review popup
+      await trackFileUpload();
       
       // Show success message
       toast.success(`File "${file.name}" uploaded successfully!`, {

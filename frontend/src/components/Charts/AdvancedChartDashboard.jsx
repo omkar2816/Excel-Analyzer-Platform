@@ -4,6 +4,7 @@ import AdvancedChart from './SimpleChart';
 import ChartSidebar from './ChartSidebar';
 import ProgressiveChartLoader from '../UI/ProgressiveChartLoader';
 import { Plus, BarChart3, Trash2, Edit3, LayoutGrid, Settings } from 'lucide-react';
+import { activityTracker } from '../../utils/reviewTracking';
 import toast from 'react-hot-toast';
 import axios from '../../config/axios';
 import { saveChartToHistory, fetchChartHistory } from '../../store/slices/analyticsSlice';
@@ -160,6 +161,9 @@ const AdvancedChartDashboard = ({ data = [], className = '' }) => {
     setPendingChart(simulatedChartData);
     setLoadingCharts(prev => new Set([...prev, chartId]));
     setIsSidebarOpen(false);
+    
+    // Track chart generation activity for review popup
+    activityTracker.trackChartGenerated();
     
     // Simulate chart creation with a delay to show the loading state
     setTimeout(() => {

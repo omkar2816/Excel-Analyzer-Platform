@@ -15,6 +15,7 @@ import historyRoutes from './routes/history.js';
 import notificationRoutes from './routes/notifications.js';
 import tabNotificationRoutes from './routes/tabNotifications.js';
 import ratingRoutes from './routes/ratings.js';
+import reviewPopupRoutes from './routes/reviewPopup.js';
 import { getTransporter } from './utils/mailer.js';
 
 // Load environment variables
@@ -62,6 +63,7 @@ app.use('/api/history', historyRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/tab-notifications', tabNotificationRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/review-popup', reviewPopupRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
