@@ -71,7 +71,7 @@ const FloatingAIAssistant = () => {
     } else if (message.includes('pricing') || message.includes('cost')) {
       return "Our platform offers flexible pricing plans. You can start with our free tier which includes basic analytics features. For advanced features and higher usage limits, check out our Pro and Enterprise plans in the Settings section.";
     } else if (message.includes('sdk') || message.includes('api') || message.includes('developer')) {
-      return "Check out our comprehensive SDK & Tools section! We offer JavaScript/TypeScript SDK, Python SDK, React components, and React Native SDK. Visit the SDK & Tools page in our support section for complete documentation and code examples.";
+      return "Learn how our platform works! Visit our 'How it Works?' section to see a step-by-step guide on uploading data, generating insights, and creating beautiful visualizations. Perfect for understanding the complete workflow from data upload to chart export.";
     } else if (message.includes('help') || message.includes('support')) {
       return "I'm here to help! You can visit our Help Center for detailed guides, check the FAQ section for common questions, or contact our support team directly through the contact form in the footer.";
     } else {

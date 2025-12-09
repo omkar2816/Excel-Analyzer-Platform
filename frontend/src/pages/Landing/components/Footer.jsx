@@ -42,7 +42,7 @@ const Footer = () => {
       { name: 'Features', href: '#features' },
       { name: 'Analytics', href: '#stats' },
       { name: 'Documentation', href: '/support/documentation' },
-      { name: 'SDK & Tools', href: '/support/sdk-tools' }
+      { name: 'How it Works?', href: '/support/how-it-works' }
     ],
     support: [
       { name: 'Help Center', href: '/support/help-center' },

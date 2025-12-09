@@ -107,6 +107,7 @@ const Header = () => {
       { type: 'page', title: 'Dashboard', description: 'Overview and quick actions', path: '/dashboard', icon: BarChart3, keywords: ['dashboard', 'home', 'overview'] },
       { type: 'page', title: 'Analytics', description: 'Upload and analyze data', path: '/analytics', icon: BarChart3, keywords: ['analytics', 'analyze', 'data', 'upload', 'excel'] },
       { type: 'page', title: 'Profile', description: 'Manage your account settings', path: '/profile', icon: User, keywords: ['profile', 'account', 'user', 'settings', 'personal'] },
+      { type: 'page', title: 'How it Works?', description: 'Learn how to use the platform', path: '/support/how-it-works', icon: Settings, keywords: ['how', 'works', 'tutorial', 'guide', 'help', 'learn'] },
       { type: 'feature', title: 'Upload File', description: 'Upload Excel or CSV files', path: '/analytics', icon: FileText, keywords: ['upload', 'file', 'excel', 'csv', 'import'] },
       { type: 'feature', title: 'Generate Charts', description: 'Create visualizations', path: '/analytics', icon: BarChart3, keywords: ['charts', 'chart', 'visual', 'graph', 'plot'] },
     ];
@@ -292,6 +293,7 @@ const Header = () => {
     if (['files', 'excel', 'upload'].some(k => q.includes(k))) return go('/files');
     if (['settings', 'preference', 'theme'].some(k => q.includes(k))) return go('/settings');
     if (['profile', 'account', 'user'].some(k => q.includes(k))) return go('/profile');
+    if (['how', 'works', 'tutorial', 'guide', 'help'].some(k => q.includes(k))) return go('/support/how-it-works');
     if (q.includes('admin')) {
       if (isAdmin) return go('/admin');
       return toast.error('Admin access required', { position: 'bottom-center' });
@@ -313,7 +315,7 @@ const Header = () => {
       return;
     }
 
-    toast.error('No matches. Try: dashboard, analytics, charts, files, settings, profile', { position: 'bottom-center' });
+    toast.error('No matches. Try: dashboard, analytics, charts, files, settings, profile, how it works', { position: 'bottom-center' });
   };
 
   return (

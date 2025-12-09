@@ -40,7 +40,7 @@ import HelpCenter from './pages/Support/HelpCenter';
 import FAQ from './pages/Support/FAQ';
 import Status from './pages/Support/Status';
 import Documentation from './pages/Support/Documentation';
-import SDKTools from './pages/Support/SDKTools';
+import HowItWorks from './pages/Support/HowItWorks';
 
 // Floating Components
 import FloatingAIAssistant from './components/FloatingAIAssistant';
@@ -100,7 +100,7 @@ function App() {
                 <Route path="/support/faq" element={<FAQ />} />
                 <Route path="/support/status" element={<Status />} />
                 <Route path="/support/documentation" element={<Documentation />} />
-                <Route path="/support/sdk-tools" element={<SDKTools />} />
+                <Route path="/support/how-it-works" element={<HowItWorks />} />
                 
                 {/* Legacy support for old routes */}
                 <Route path="/privacy" element={<Privacy />} />
